@@ -1,23 +1,27 @@
 import { Players, ReplicatedStorage } from "@rbxts/services";
+import { LogLevel } from "shared/types";
+import { Logger } from "shared/utils/logger";
 
 const Remotes = ReplicatedStorage.WaitForChild("Remotes");
 const TriggerDistortion = Remotes.WaitForChild("TriggerDistortion") as RemoteEvent;
 const TriggerFlicker = Remotes.WaitForChild("TriggerDistortion") as RemoteEvent;
 
+const logger = new Logger("EventHandler", LogLevel.Debug);
+
 TriggerDistortion.OnServerEvent.Connect((player) => {
 	if (Players.FindFirstChild(player.Name)) {
-		print(`${player.Name} triggered a distortion event.`);
+		logger.info(`${player.Name} triggered a distortion event.`);
 		TriggerDistortion.FireClient(player);
 	} else {
-		print(`Invalid player: ${player.Name}`);
+		logger.error(`Invalid player: ${player.Name}`);
 	}
 });
 
 TriggerFlicker.OnServerEvent.Connect((player) => {
 	if (Players.FindFirstChild(player.Name)) {
-		print(`${player.Name} triggered a flickering event.`);
+		logger.info(`${player.Name} triggered a flickering event.`);
 		TriggerFlicker.FireClient(player);
 	} else {
-		print(`Invalid player: ${player.Name}`);
+		logger.error(`Invalid player: ${player.Name}`);
 	}
 });

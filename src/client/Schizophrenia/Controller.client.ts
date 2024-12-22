@@ -1,20 +1,21 @@
 import { ReplicatedStorage, Workspace, RunService } from "@rbxts/services";
+import { createNPC } from "shared/modules/SchizoNPC";
 import { Logger, LogLevel } from "shared/utils/logger";
+const Players = game.GetService("Players");
 const Remotes = ReplicatedStorage.WaitForChild("Remotes");
 const TriggerFlicker = Remotes.WaitForChild("TriggerFlicker") as RemoteEvent;
 
-const NPC = Workspace.WaitForChild("ExampleMonster") as Model;
+const NPC = createNPC(Players.LocalPlayer);
 const Camera = Workspace.CurrentCamera;
 
-const debounce = 0.5;
 let lastTime = tick();
-
-const Players = game.GetService("Players");
-const player = Players.LocalPlayer;
-const character = player.Character || player.CharacterAdded.Wait()[0];
 let canMove = true;
 
-const DebugLogger = new Logger("SchizoController", LogLevel.Debug);
+const debounce = 0.5;
+const player = Players.LocalPlayer;
+const character = player.Character || player.CharacterAdded.Wait()[0];
+
+const logger = new Logger("SchizoController", LogLevel.Debug);
 
 RunService.RenderStepped.Connect(() => {
 	const currentTime = tick();
@@ -31,10 +32,10 @@ RunService.RenderStepped.Connect(() => {
 				const humanoidRootPart = character.FindFirstChild("HumanoidRootPart") as Part;
 				if (humanoidRootPart) {
 					const behindPosition = humanoidRootPart.Position.sub(humanoidRootPart.CFrame.LookVector.mul(5));
-					DebugLogger.debug(`Moving NPC to ${behindPosition}`);
+					logger.debug(`Moving NPC to ${behindPosition}`);
 					NPC.PivotTo(new CFrame(behindPosition));
 				} else {
-					warn("HumanoidRootPart not found in the character.");
+					logger.warn("HumanoidRootPart not found in the character.");
 				}
 				canMove = true;
 			}
@@ -43,8 +44,8 @@ RunService.RenderStepped.Connect(() => {
 			TriggerFlicker.FireServer();
 		}
 
-		canMove = true
-		DebugLogger.debug(`${inScreenBounds} ${canMove}`);
+		canMove = true;
+		logger.debug(`${inScreenBounds} ${canMove}`);
 		lastTime = currentTime;
 	}
 });

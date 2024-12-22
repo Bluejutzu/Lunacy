@@ -1,4 +1,9 @@
-import { LogLevel } from "shared/types";
+enum LogLevel {
+	Debug = "DEBUG",
+	Info = "INFO",
+	Warn = "WARN",
+	Error = "ERROR",
+}
 
 class Logger {
 	private name?: string;

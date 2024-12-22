@@ -1,11 +1,16 @@
 import { ReplicatedStorage, Workspace } from "@rbxts/services";
-import { BehaviourType } from "shared/types";
 import { Logger, LogLevel } from "shared/utils/logger";
 
 const NPC = ReplicatedStorage.WaitForChild("Models").WaitForChild("NPC", 1000) as Model;
 const NPCFolder = Workspace.WaitForChild("NPCs") as Folder;
 
 const logger = new Logger("SchizoNPC", LogLevel.Debug);
+
+export enum BehaviourType {
+    Idle = "IDLE",
+    Follow = "FOLLOW",
+    Attack = "ATTACK",
+}
 
 export function createNPC(targetPlayer: Player): Model | undefined {
 	const char = targetPlayer.Character || targetPlayer.CharacterAdded.Wait()[0];

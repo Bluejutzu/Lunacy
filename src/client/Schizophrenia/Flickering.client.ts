@@ -1,12 +1,16 @@
 import { Workspace } from "@rbxts/services";
+import { Logger, LogLevel } from "shared/utils/logger";
 
 const ReplicatedStorage = game.GetService("ReplicatedStorage");
 const UserInputService = game.GetService("UserInputService");
 const TriggerFlicker = ReplicatedStorage.WaitForChild("Remotes").WaitForChild("TriggerFlicker") as RemoteEvent;
+const Jumpscare = ReplicatedStorage.WaitForChild("Remotes").WaitForChild("Jumpscare") as RemoteEvent;
 
 const humanoidModel = Workspace.FindFirstChild("ExampleMonster") as Model;
 const flickerDuration = 5;
 const baseFlickerInterval = 0.1;
+
+const logger = new Logger("Flickering", LogLevel.Debug);
 
 const setModelTransparency = (model: Model, transparency: number) => {
 	model.GetDescendants().forEach((descendant) => {
@@ -47,4 +51,8 @@ UserInputService.InputBegan.Connect((input, gameProcessed) => {
 	if (gameProcessed) return;
 	if (input.KeyCode !== Enum.KeyCode.G) return;
 	FlickerEvent();
+});
+
+Jumpscare.OnClientEvent.Connect(() => {
+	logger.info("[CLIENT] Jumpscare event triggered.");
 });

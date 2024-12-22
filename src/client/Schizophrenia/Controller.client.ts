@@ -3,9 +3,11 @@ import { createNPC } from "shared/modules/SchizoNPC";
 import { Logger, LogLevel } from "shared/utils/logger";
 const Players = game.GetService("Players");
 const Remotes = ReplicatedStorage.WaitForChild("Remotes");
-const TriggerFlicker = Remotes.WaitForChild("TriggerFlicker") as RemoteEvent;
-const player = Players.LocalPlayer;
 
+const TriggerFlicker = Remotes.WaitForChild("TriggerFlicker") as RemoteEvent;
+const Jumpscare = Remotes.WaitForChild("Jumpscare") as RemoteEvent;
+
+const player = Players.LocalPlayer;
 const NPC = createNPC(player);
 const Camera = Workspace.CurrentCamera;
 
@@ -14,11 +16,11 @@ const character = player.Character || player.CharacterAdded.Wait()[0];
 const logger = new Logger("SchizoController", LogLevel.Debug);
 
 const debounce = 0.5;
-const npcLastSeenDebounce = 2;
+const npcLastSeenDebounce = 5;
 
 let lastTime = tick();
 let canMove = true;
-let npcLastSeenTime = 0;
+let npcLastSeenTime = lastTime;
 let npcLastPos: Vector3;
 
 RunService.RenderStepped.Connect(() => {
@@ -53,13 +55,17 @@ RunService.RenderStepped.Connect(() => {
 		} else {
 			canMove = false;
 			task.spawn(() => {
-				if (currentTime - npcLastSeenTime >= npcLastSeenDebounce) {
-					// logger.info("NPC not seen for a while.");
-					npcLastSeenTime = currentTime;
-				}
+				TriggerFlicker.FireServer();
 			});
-			TriggerFlicker.FireServer();
-			logger.info(`Triggered Flicker from ${player.Name}`);
+			const roundedNpcTime = math.round(currentTime - npcLastSeenTime);
+			if (roundedNpcTime >= npcLastSeenDebounce) {
+				// also implement general checking if 7s passed since last inScreenBounds if statement
+				logger.debug("NPC not seen for a while.");
+				logger.debug(currentTime - npcLastSeenTime, npcLastSeenDebounce, roundedNpcTime);
+				Jumpscare.FireServer();
+			}
+			npcLastSeenTime = currentTime;
+			// logger.info(`Triggered Flicker from ${player.Name}`);
 		}
 
 		// logger.debug(`${inScreenBounds} ${canMove}`);

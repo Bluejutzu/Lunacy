@@ -1,10 +1,10 @@
 import { Players, ReplicatedStorage } from "@rbxts/services";
-import { LogLevel } from "shared/types";
-import { Logger } from "shared/utils/logger";
+import { Logger, LogLevel } from "shared/utils/logger";
 
 const Remotes = ReplicatedStorage.WaitForChild("Remotes");
 const TriggerDistortion = Remotes.WaitForChild("TriggerDistortion") as RemoteEvent;
 const TriggerFlicker = Remotes.WaitForChild("TriggerDistortion") as RemoteEvent;
+const Jumpscare = Remotes.WaitForChild("Jumpscare") as RemoteEvent;
 
 const logger = new Logger("EventHandler", LogLevel.Debug);
 
@@ -25,3 +25,8 @@ TriggerFlicker.OnServerEvent.Connect((player) => {
 		logger.error(`Invalid player: ${player.Name}`);
 	}
 });
+
+Jumpscare.OnServerEvent.Connect((player) => {
+	logger.info(`[SERVER] ${player.Name} triggered a jumpscare event.`);
+	Jumpscare.FireClient(player);
+})

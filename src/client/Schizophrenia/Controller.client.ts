@@ -4,36 +4,47 @@ import { Logger, LogLevel } from "shared/utils/logger";
 const Players = game.GetService("Players");
 const Remotes = ReplicatedStorage.WaitForChild("Remotes");
 const TriggerFlicker = Remotes.WaitForChild("TriggerFlicker") as RemoteEvent;
+const player = Players.LocalPlayer;
 
-const NPC = createNPC(Players.LocalPlayer);
+const NPC = createNPC(player);
 const Camera = Workspace.CurrentCamera;
 
-let lastTime = tick();
-let canMove = true;
-
-const debounce = 0.5;
-const player = Players.LocalPlayer;
 const character = player.Character || player.CharacterAdded.Wait()[0];
 
 const logger = new Logger("SchizoController", LogLevel.Debug);
 
+const debounce = 0.5;
+const npcLastSeenDebounce = 2;
+
+let lastTime = tick();
+let canMove = true;
+let npcLastSeenTime = 0;
+let npcLastPos: Vector3;
+
 RunService.RenderStepped.Connect(() => {
 	const currentTime = tick();
+	const npcCurrPos: Vector3 = NPC?.PrimaryPart?.Position!;
 
 	if (currentTime - lastTime >= debounce) {
 		if (!NPC || !Camera || !character) return;
 		const result = Camera?.WorldToScreenPoint(NPC.PrimaryPart?.Position!);
-		// const ScreenBounds = result[0];  X & Y top left of screen in pixels. Z depth of NPC.Position from the screen in studs
-		const inScreenBounds = result[1]; // bool
+		const inScreenBounds = result[1];
 
 		if (!inScreenBounds) {
+			canMove = true;
 			if (canMove) {
 				canMove = false;
 				const humanoidRootPart = character.FindFirstChild("HumanoidRootPart") as Part;
 				if (humanoidRootPart) {
-					const behindPosition = humanoidRootPart.Position.sub(humanoidRootPart.CFrame.LookVector.mul(5));
-					logger.debug(`Moving NPC to ${behindPosition}`);
-					NPC.PivotTo(new CFrame(behindPosition));
+					npcLastPos = humanoidRootPart.Position;
+					const distance = npcCurrPos.sub(npcLastPos).Magnitude;
+					if (distance > 10) {
+						const behindPosition = humanoidRootPart.Position.sub(humanoidRootPart.CFrame.LookVector.mul(5));
+						// logger.debug(`Moving NPC to ${behindPosition}, distance: ${distance}`);
+						NPC.PivotTo(new CFrame(behindPosition));
+					} else {
+						// logger.debug(`NPC is close enough to the player.`);
+					}
 				} else {
 					logger.warn("HumanoidRootPart not found in the character.");
 				}
@@ -41,11 +52,18 @@ RunService.RenderStepped.Connect(() => {
 			}
 		} else {
 			canMove = false;
+			task.spawn(() => {
+				if (currentTime - npcLastSeenTime >= npcLastSeenDebounce) {
+					// logger.info("NPC not seen for a while.");
+					npcLastSeenTime = currentTime;
+				}
+			});
 			TriggerFlicker.FireServer();
+			logger.info(`Triggered Flicker from ${player.Name}`);
 		}
 
-		canMove = true;
-		logger.debug(`${inScreenBounds} ${canMove}`);
+		// logger.debug(`${inScreenBounds} ${canMove}`);
+		npcLastPos = npcCurrPos;
 		lastTime = currentTime;
 	}
 });

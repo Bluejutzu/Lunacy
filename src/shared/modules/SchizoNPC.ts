@@ -2,7 +2,7 @@ import { ReplicatedStorage, Workspace } from "@rbxts/services";
 import { BehaviourType } from "shared/types";
 import { Logger, LogLevel } from "shared/utils/logger";
 
-const NPC = ReplicatedStorage.WaitForChild("Models").WaitForChild("NPC") as Model;
+const NPC = ReplicatedStorage.WaitForChild("Models").WaitForChild("NPC", 1000) as Model;
 const NPCFolder = Workspace.WaitForChild("NPCs") as Folder;
 
 const logger = new Logger("SchizoNPC", LogLevel.Debug);
@@ -14,11 +14,12 @@ export function createNPC(targetPlayer: Player): Model | undefined {
 		return;
 	}
 
-	for (const model of NPC.GetChildren()) {
+	for (const model of NPCFolder.GetChildren()) {
+		logger.debug(`Checking model: ${model.Name}`);
 		if (model.IsA("Model")) {
 			const currTargetId = model.GetAttribute("TargetPlayer");
 			if (currTargetId === targetPlayer.UserId) {
-				logger.error(`NPC already exists for player ${targetPlayer.Name}`);
+				logger.warn(`NPC already exists for player ${targetPlayer.Name} ${targetPlayer.UserId}`);
 				logger.debug(`Found NPC: ${model.Name}`);
 				return;
 			}

@@ -39,7 +39,7 @@ const FlickerEvent = () => {
 	});
 };
 
-TriggerFlicker.OnClientEvent.Connect(() => {
+TriggerFlicker.OnClientEvent.Connect((position: Vector3, inScreenBounds: Boolean) => {
 	FlickerEvent();
 });
 

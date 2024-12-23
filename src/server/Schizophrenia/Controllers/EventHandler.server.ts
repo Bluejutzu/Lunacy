@@ -1,4 +1,5 @@
 import { Players, ReplicatedStorage } from "@rbxts/services";
+import { PlayerController } from "shared/modules/PlayerController";
 import { Logger, LogLevel } from "shared/utils/logger";
 
 const Remotes = ReplicatedStorage.WaitForChild("Remotes");
@@ -36,4 +37,5 @@ Players.PlayerAdded.Connect((player) => {
 	logger.info(`Player ${player.Name} has joined the game.`);
 	logger.info(`Game loaded for player ${player.Name}.`);
 	NPCInit.FireClient(player);
+	PlayerController.initPlayer(player);
 });

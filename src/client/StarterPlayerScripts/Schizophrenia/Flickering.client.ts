@@ -1,4 +1,4 @@
-import { Workspace } from "@rbxts/services";
+import { RunService, Workspace } from "@rbxts/services";
 import { Logger, LogLevel } from "shared/utils/logger";
 
 const ReplicatedStorage = game.GetService("ReplicatedStorage");
@@ -48,6 +48,7 @@ TriggerFlicker.OnClientEvent.Connect((position: Vector3, inScreenBounds: Boolean
 });
 
 UserInputService.InputBegan.Connect((input, gameProcessed) => {
+	if (!RunService.IsStudio()) return;
 	if (gameProcessed) return;
 	if (input.KeyCode !== Enum.KeyCode.G) return;
 	FlickerEvent();

@@ -14,10 +14,10 @@ export const helpers = {
 		const result = camera.WorldToScreenPoint(position);
 		return result[1];
 	},
-	moveToPosition: (npc: Model, position: Vector3) => {
+	moveToPosition: (npc: Model, pos: Vector3) => {
 		const humanoid = npc.WaitForChild("Humanoid") as Humanoid;
 		if (humanoid) {
-			humanoid.Move(position);
+			humanoid.MoveTo(new Vector3(pos.X, 0, pos.Z));
 		}
 	},
 };

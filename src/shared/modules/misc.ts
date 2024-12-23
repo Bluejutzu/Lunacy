@@ -1,5 +1,5 @@
 export const helpers = {
-	moveToPosition: (npc: Model, position: Vector3) => {
+	pivotToPos: (npc: Model, position: Vector3) => {
 		const primaryPart = npc.PrimaryPart;
 		if (primaryPart) {
 			npc.PivotTo(new CFrame(position));
@@ -13,5 +13,11 @@ export const helpers = {
 	isInScreenBounds: (camera: Camera, position: Vector3): boolean => {
 		const result = camera.WorldToScreenPoint(position);
 		return result[1];
+	},
+	moveToPosition: (npc: Model, position: Vector3) => {
+		const humanoid = npc.WaitForChild("Humanoid") as Humanoid;
+		if (humanoid) {
+			humanoid.Move(position);
+		}
 	},
 };

@@ -30,9 +30,10 @@ TriggerFlicker.OnServerEvent.Connect((player) => {
 Jumpscare.OnServerEvent.Connect((player) => {
 	logger.info(`[SERVER] ${player.Name} triggered a jumpscare event.`);
 	Jumpscare.FireClient(player);
-})
+});
 
 Players.PlayerAdded.Connect((player) => {
 	logger.info(`Player ${player.Name} has joined the game.`);
+	logger.info(`Game loaded for player ${player.Name}.`);
 	NPCInit.FireClient(player);
-})
+});

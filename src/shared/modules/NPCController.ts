@@ -20,7 +20,11 @@ export enum BehaviourType {
 	Attack = "ATTACK",
 }
 
-let RunServices: any[string] = [];
+interface RunServicesType {
+	[key: string]: RBXScriptConnection;
+}
+
+let RunServices: RunServicesType = {};
 
 export const NPCController = {
 	createNPC: (targetPlayer: Player): Model | undefined => {
@@ -45,8 +49,8 @@ export const NPCController = {
 		const newNPC = NPC.Clone();
 		newNPC.Parent = NPCFolderReplicated;
 		newNPC.Name = `${targetPlayer.UserId}_NPC`;
-		newNPC.SetAttribute("Behaviour", BehaviourType.Idle);
-		newNPC.SetAttribute("TargetPlayer", targetPlayer.UserId);
+		newNPC.SetAttribute("Behaviour", BehaviourType.Follow);
+		newNPC.SetAttribute("TargetPlayer", `${targetPlayer.UserId}`);
 		return newNPC;
 	},
 	deleteNPC: (targetPlayer: Player) => {
@@ -68,6 +72,10 @@ export const NPCController = {
 		}
 	},
 	initNPC: (character: Model, Camera: Camera): Model | undefined => {
+		if (!game.IsLoaded()) {
+			game.Loaded.Wait();
+		}
+
 		const NPC = NPCController.createNPC(Players.LocalPlayer);
 		if (!NPC) {
 			logger.error(
@@ -75,31 +83,55 @@ export const NPCController = {
 			);
 			return;
 		}
-		NPC.SetAttribute("init", true);
 		if (RunServices[NPC.Name]) {
 			RunServices[NPC.Name].Disconnect();
 		}
 		RunServices[NPC.Name] = RunService.RenderStepped.Connect(() => {
 			const currentTime = tick();
 			const npcCurrPos: Vector3 = NPC?.PrimaryPart?.Position!;
-			canMove = true
+			canMove = true;
 
 			if (currentTime - lastTime >= debounce) {
-				if (!NPC || !Camera || !character) return;
+				if (!NPC || !Camera || !character) {
+					logger.error("NPC, Camera or Character not found.");
+					return;
+				}
 				const isInScreenBounds = helpers.isInScreenBounds(Camera, npcCurrPos);
 
-				if (!isInScreenBounds && canMove) {
-					const humanoidRootPart = character.FindFirstChild("HumanoidRootPart") as Part;
+				if (!isInScreenBounds) {
+					canMove = true
+					const humanoidRootPart = character.WaitForChild("HumanoidRootPart") as Part;
 					if (humanoidRootPart) {
-						npcLastPos = humanoidRootPart.Position;
-						const distance = helpers.getDistance(npcCurrPos, npcLastPos);
-						if (distance > 10) {
-							const behindPosition = humanoidRootPart.Position.sub(
-								humanoidRootPart.CFrame.LookVector.mul(5),
-							);
-							logger.debug(`Moving NPC to ${behindPosition}, distance: ${distance}`);
-							helpers.moveToPosition(NPC, behindPosition);
-							canMove = false; // Set canMove to false after moving the NPC
+						if (NPC.GetAttribute("Behaviour") === BehaviourType.Idle) {
+							npcLastPos = humanoidRootPart.Position;
+							const distance = helpers.getDistance(npcCurrPos, npcLastPos);
+							if (distance > 10) {
+								const behindPosition = humanoidRootPart.Position.sub(
+									humanoidRootPart.CFrame.LookVector.mul(5),
+								);
+								logger.debug(`Moving NPC to ${behindPosition}, distance: ${distance}`);
+								helpers.pivotToPos(NPC, behindPosition);
+								canMove = false; // Set canMove to false after moving the NPC
+							}
+						} else if (NPC.GetAttribute("Behaviour") === BehaviourType.Follow) {
+							const targetPlayerId = NPC.GetAttribute("TargetPlayer") as number;
+							const targetPlayer = Players.GetPlayerByUserId(targetPlayerId);
+
+							// TODO: This bum ahh code is not working, the NPC just walks off into the horizon searching its none extisting dad
+							if (targetPlayer) {
+								const distance = helpers.getDistance(npcCurrPos, humanoidRootPart.Position);
+								if (distance > 10) {
+									const targetPos = humanoidRootPart.Position.Floor()
+									logger.debug(`Moving NPC to ${targetPos}, distance: ${distance}`);
+									helpers.moveToPosition(NPC, targetPos);
+									canMove = true;
+								} else if (distance > 15) {
+									logger.warn(`Something went horribly wrong ${distance}`,);
+								}
+							} else {
+								logger.error("Target player not found.");
+							}
+						} else if (NPC.GetAttribute("Behaviour") === BehaviourType.Attack) {
 						}
 					} else {
 						logger.warn("HumanoidRootPart not found in the character.");
@@ -111,6 +143,8 @@ export const NPCController = {
 				lastTime = currentTime;
 			}
 		});
+		NPC.Parent = NPCFolder;
+		NPC.SetAttribute("init", true);
 		return NPC;
 	},
 };

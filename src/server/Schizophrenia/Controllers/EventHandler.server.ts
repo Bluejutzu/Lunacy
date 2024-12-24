@@ -7,6 +7,7 @@ const TriggerDistortion = Remotes.WaitForChild("TriggerDistortion") as RemoteEve
 const TriggerFlicker = Remotes.WaitForChild("TriggerDistortion") as RemoteEvent;
 const Jumpscare = Remotes.WaitForChild("Jumpscare") as RemoteEvent;
 const NPCInit = Remotes.WaitForChild("NPCInit") as RemoteEvent;
+const AfkEvent = Remotes.WaitForChild("AfkEvent") as RemoteEvent;
 
 const logger = new Logger("EventHandler", LogLevel.Debug);
 
@@ -31,6 +32,13 @@ TriggerFlicker.OnServerEvent.Connect((player) => {
 Jumpscare.OnServerEvent.Connect((player) => {
 	logger.info(`[SERVER] ${player.Name} triggered a jumpscare event.`);
 	Jumpscare.FireClient(player);
+});
+
+AfkEvent.OnServerEvent.Connect((player, afk) => {
+	const playerGui = player.WaitForChild("PlayerGui") as PlayerGui;
+	const overheadGUI = playerGui.WaitForChild("OverheadGUI") as BillboardGui;
+
+	overheadGUI.Enabled = afk as boolean;
 });
 
 Players.PlayerAdded.Connect((player) => {

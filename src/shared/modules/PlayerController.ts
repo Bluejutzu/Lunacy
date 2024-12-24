@@ -14,7 +14,7 @@ export const PlayerController = {
 		const playerGui = player.WaitForChild("PlayerGui") as PlayerGui;
 		const overheadGUI = OverheadGUI.Clone();
 		overheadGUI.Parent = playerGui;
-		PlayerInit.FireClient(player, overheadGUI);
+		PlayerInit.FireClient(player);
 
 		logger.info(`[SERVER] Player ${player.Name} initialized.`);
 	},

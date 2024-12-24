@@ -1,6 +1,11 @@
 import { RunService } from "@rbxts/services";
 
-const character = script.Parent as Model;
+/**
+ * Folder structure:
+ * Script > TS > Character
+ */
+
+const character = script.Parent?.Parent as Model;
 const humanoid = character.WaitForChild("Humanoid") as Humanoid;
 
 const REGEN_DELAY = 5;

@@ -1,5 +1,5 @@
 import { ReplicatedStorage } from "@rbxts/services";
-import { Logger, LogLevel } from "shared/utils/logger";
+import { Logger, LogLevel } from "shared/Gameplay/Utils/logger";
 
 const Remotes = ReplicatedStorage.WaitForChild("Remotes") as Folder;
 const PlayerInit = Remotes.WaitForChild("PlayerInit") as RemoteEvent;

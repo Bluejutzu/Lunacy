@@ -1,5 +1,5 @@
 import { RunService, Workspace } from "@rbxts/services";
-import { Logger, LogLevel } from "shared/utils/logger";
+import { Logger, LogLevel } from "shared/Gameplay/Utils/logger";
 
 const ReplicatedStorage = game.GetService("ReplicatedStorage");
 const UserInputService = game.GetService("UserInputService");

@@ -1,6 +1,6 @@
 import { ReplicatedStorage, Workspace, RunService, Players } from "@rbxts/services";
-import { Logger, LogLevel } from "shared/utils/logger";
-import { helpers } from "./helpers";
+import { Logger, LogLevel } from "shared/Gameplay/Utils/logger";
+import { helpers } from "../Utils/helpers";
 
 const NPC = ReplicatedStorage.WaitForChild("Models").WaitForChild("NPC", 1000) as Model;
 const NPCFolder = Workspace.WaitForChild("NPCs") as Folder;
@@ -175,7 +175,7 @@ export const NPCController = {
 			);
 			return;
 		}
-		
+
 		if (RunServices[NPC.Name]) {
 			logger.debug(RunServices);
 			RunServices[NPC.Name].Disconnect();

@@ -168,7 +168,6 @@ export const NPCController = {
 		if (!game.IsLoaded()) {
 			game.Loaded.Wait();
 		}
-
 		const NPC = NPCController.createNPC(Players.LocalPlayer);
 		if (!NPC) {
 			logger.error(
@@ -176,6 +175,7 @@ export const NPCController = {
 			);
 			return;
 		}
+		
 		if (RunServices[NPC.Name]) {
 			logger.debug(RunServices);
 			RunServices[NPC.Name].Disconnect();

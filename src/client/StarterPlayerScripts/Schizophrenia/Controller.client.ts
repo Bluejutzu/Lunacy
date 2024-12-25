@@ -14,6 +14,7 @@ const logger = new Logger("Controller", LogLevel.Debug);
 const initizalize = () => {
 	const character = player.Character || player.CharacterAdded.Wait()[0];
 	const camera = Workspace.CurrentCamera;
+	
 	if (!camera) {
 		logger.warn("Camera not found in the workspace.");
 		return;

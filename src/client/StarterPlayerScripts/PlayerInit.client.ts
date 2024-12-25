@@ -13,6 +13,7 @@ PlayerInit.OnClientEvent.Connect(() => {
         logger.warn(`${plr} is not a valid player.`);
         return;
     }
+    plr.CameraMode = Enum.CameraMode.LockFirstPerson;
     logger.info(`[CLIENT] Player ${plr.Name} initialized.`);
 });
 

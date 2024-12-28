@@ -1,5 +1,5 @@
 import { Players, ReplicatedStorage } from "@rbxts/services";
-import { Logger, LogLevel } from "shared/Gameplay/Utils/logger";
+import { Logger, LogLevel } from "shared/Gameplay/Utility/logger";
 
 const plr = Players.LocalPlayer;
 

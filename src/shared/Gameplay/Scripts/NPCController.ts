@@ -1,6 +1,6 @@
 import { ReplicatedStorage, Workspace, RunService, Players } from "@rbxts/services";
-import { Logger, LogLevel } from "shared/Gameplay/Utils/logger";
-import { helpers } from "../Utils/helpers";
+import { Logger, LogLevel } from "shared/Gameplay/Utility/logger";
+import { helpers } from "../Utility/helpers";
 
 const NPC = ReplicatedStorage.WaitForChild("Models").WaitForChild("NPC", 1000) as Model;
 const NPCFolder = Workspace.WaitForChild("NPCs") as Folder;

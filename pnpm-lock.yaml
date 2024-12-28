@@ -15,6 +15,9 @@ importers:
       '@rbxts/compiler-types':
         specifier: 3.0.0-types.0
         version: 3.0.0-types.0
+      '@rbxts/roact':
+        specifier: ^3.0.1
+        version: 3.0.1
       '@rbxts/types':
         specifier: ^1.0.813
         version: 1.0.813
@@ -120,6 +123,9 @@ packages:
 
   '@rbxts/compiler-types@3.0.0-types.0':
     resolution: {integrity: sha512-VGOHJPoL7+56NTatMGqQj3K7xWuzEV+aP4QD5vZiHu+bcff3kiTmtoadaF6NkJrmwfFAvbsd4Dg764ZjWNceag==}
+
+  '@rbxts/roact@3.0.1':
+    resolution: {integrity: sha512-1RVGy8PL078pXdrrYboiKftMKqB4YgYd4Sh/M3aWkhY2TKBBL+hlT1Om35cmCn8sKzdzQwzf2CbmcU49lHoNuw==}
 
   '@rbxts/services@1.5.5':
     resolution: {integrity: sha512-Hu7QH2ecefS60zpakKG3T2vgABydoOJqpSG7nXr59wFAbPk/cA+OcsntYPHUWyHAat0VFGZ5jNZLTLdiqfssvg==}
@@ -873,6 +879,8 @@ snapshots:
   '@pkgr/core@0.1.1': {}
 
   '@rbxts/compiler-types@3.0.0-types.0': {}
+
+  '@rbxts/roact@3.0.1': {}
 
   '@rbxts/services@1.5.5': {}
 

@@ -1,7 +1,7 @@
 import { ReplicatedStorage, RunService, UserInputService as uis, Players, Workspace } from "@rbxts/services";
 import { Constants } from "../Constants";
 import { Logger, LogLevel } from "../Utility/logger";
-import { lerp } from "../Utility/lerp";
+import lerp from "../Utility/lerp";
 import disconnectAndClear from "shared/Utility/disconnectAndClear";
 
 const logger = new Logger("ViewModelController", LogLevel.Debug);
@@ -16,7 +16,6 @@ export class ViewModelController {
 	private handle?: Part;
 	private enabled: boolean = false;
 	private equipped = false;
-	private swayCF = new CFrame();
 	private animations: AnimationTrack[] = [];
 	private toolInstances = new Map<string, Instance>();
 	private connections: RBXScriptConnection[] = [];
@@ -114,11 +113,10 @@ export class ViewModelController {
 
 	private enable() {
 		if (this.enabled) return;
+		this.enabled = true;
 		if (this.viewModel) {
 			this.viewModel.Parent = Workspace;
 		}
-		this.enabled = true;
-
 		let mouseSwayCF = new CFrame();
 		let walkSwayCF = new CFrame();
 
@@ -183,7 +181,6 @@ export class ViewModelController {
 			this.viewModel.Parent = undefined;
 		}
 		this.stopHidingToolInstances();
-
 		for (const animation of this.animations) {
 			animation.Stop(0);
 		}
@@ -198,6 +195,7 @@ export class ViewModelController {
 		this.swayConnection?.Disconnect();
 		this.swayConnection = undefined;
 		disconnectAndClear(this.connections);
+		this.destroy()
 	}
 
 	private onEquipped() {
@@ -206,8 +204,8 @@ export class ViewModelController {
 	}
 
 	private onUnequipped() {
-		this.disable();
 		this.equipped = false;
+		this.disable();
 		this.cleanup();
 	}
 }

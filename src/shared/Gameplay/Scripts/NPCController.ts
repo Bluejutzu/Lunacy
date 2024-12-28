@@ -29,98 +29,97 @@ export interface RBXScriptArray {
 	[key: string]: RBXScriptConnection;
 }
 
-let RunServices: RBXScriptArray = {};
+class NPCController {
+	private RunServices: RBXScriptArray = {};
 
-function moveNPC(NPC: Model, character: Model, Camera: Camera): void {
-	const npcCurrPos = NPC.PrimaryPart?.Position!;
-	const isInScreenBounds = helpers.isInScreenBounds(Camera, npcCurrPos);
+	private moveNPC(NPC: Model, character: Model, Camera: Camera): void {
+		const npcCurrPos = NPC.PrimaryPart?.Position!;
+		const isInScreenBounds = helpers.isInScreenBounds(Camera, npcCurrPos);
 
-	if (!isInScreenBounds) {
-		canMove = true;
-		const humanoidRootPart = character.WaitForChild("HumanoidRootPart") as Part;
-		const humanoid = character.WaitForChild("Humanoid") as Humanoid;
-
-		if (humanoidRootPart) {
-			handleNPCBehaviour(NPC, humanoidRootPart, humanoid);
-		} else {
-			logger.warn("HumanoidRootPart not found in the character.");
-		}
-	} else {
-		canMove = false;
-	}
-}
-
-function handleNPCBehaviour(NPC: Model, humanoidRootPart: Part, humanoid: Humanoid): void {
-	const npcCurrPos = NPC.PrimaryPart?.Position!;
-	const behaviour = NPC.GetAttribute("Behaviour") as BehaviourType;
-
-	switch (behaviour) {
-		case BehaviourType.Idle:
-			handleIdleBehaviour(NPC, humanoidRootPart, npcCurrPos);
-			break;
-		case BehaviourType.Follow:
-			handleFollowBehaviour(NPC, humanoidRootPart, npcCurrPos);
-			break;
-		case BehaviourType.Attack:
-			handleAttackBehaviour(NPC, humanoidRootPart, humanoid, npcCurrPos);
-			break;
-	}
-}
-
-function handleIdleBehaviour(NPC: Model, humanoidRootPart: Part, npcCurrPos: Vector3): void {
-	npcLastPos = humanoidRootPart.Position;
-	const distance = helpers.getDistance(npcCurrPos, npcLastPos);
-	if (distance > 25) {
-		const behindPosition = humanoidRootPart.Position.sub(humanoidRootPart.CFrame.LookVector.mul(5));
-		logger.debug(`Moving NPC to ${behindPosition}, distance: ${distance}`);
-		helpers.pivotToPos(NPC, behindPosition);
-		canMove = false;
-	}
-}
-
-function handleFollowBehaviour(NPC: Model, humanoidRootPart: Part, npcCurrPos: Vector3): void {
-	const targetPlayerId = NPC.GetAttribute("TargetPlayer") as number;
-	const targetPlayer = Players.GetPlayerByUserId(targetPlayerId);
-
-	if (targetPlayer) {
-		const distance = helpers.getDistance(npcCurrPos, humanoidRootPart.Position);
-		if (distance > 10) {
-			const lookVector = humanoidRootPart.CFrame.LookVector;
-			const offset = lookVector.mul(5);
-			const targetPos = humanoidRootPart.Position.sub(offset);
-
-			// logger.debug(`Moving NPC to ${targetPos}, distance: ${distance}`);
-			helpers.moveToPosition(NPC, new Vector3(targetPos.X, humanoidRootPart.Position.Y, targetPos.Z));
+		if (!isInScreenBounds) {
 			canMove = true;
-		} else if (distance > 15) {
-			logger.warn(`Something went horribly wrong ${distance}`);
+			const humanoidRootPart = character.WaitForChild("HumanoidRootPart") as Part;
+			const humanoid = character.WaitForChild("Humanoid") as Humanoid;
+
+			if (humanoidRootPart) {
+				this.handleNPCBehaviour(NPC, humanoidRootPart, humanoid);
+			} else {
+				logger.warn("HumanoidRootPart not found in the character.");
+			}
+		} else {
+			canMove = false;
 		}
-	} else {
-		logger.error("Target player not found.");
 	}
-}
 
-function handleAttackBehaviour(NPC: Model, humanoidRootPart: Part, humanoid: Humanoid, npcCurrPos: Vector3): void {
-	const distance = helpers.getDistance(npcCurrPos, humanoidRootPart.Position);
-	const Animator = NPC.WaitForChild("Humanoid").WaitForChild("Animator") as Animator;
-	if (!humanoid || !Animator) {
-		logger.error(`Humanoid or Animator not found, ${humanoid}, ${Animator}`);
-		return;
-	}
-	const animTrack = Animator.LoadAnimation(anim);
-	if (distance < 5 && canPlay) {
-		canPlay = false;
-		animTrack.Play();
-		humanoid.TakeDamage(10);
-		animTrack.Stopped.Connect(() => {
-			wait(0.5);
-			canPlay = true;
-		});
-	}
-}
+	private handleNPCBehaviour(NPC: Model, humanoidRootPart: Part, humanoid: Humanoid): void {
+		const npcCurrPos = NPC.PrimaryPart?.Position!;
+		const behaviour = NPC.GetAttribute("Behaviour") as BehaviourType;
 
-export const NPCController = {
-	createNPC: (targetPlayer: Player): Model | undefined => {
+		switch (behaviour) {
+			case BehaviourType.Idle:
+				this.handleIdleBehaviour(NPC, humanoidRootPart, npcCurrPos);
+				break;
+			case BehaviourType.Follow:
+				this.handleFollowBehaviour(NPC, humanoidRootPart, npcCurrPos);
+				break;
+			case BehaviourType.Attack:
+				this.handleAttackBehaviour(NPC, humanoidRootPart, humanoid, npcCurrPos);
+				break;
+		}
+	}
+
+	private handleIdleBehaviour(NPC: Model, humanoidRootPart: Part, npcCurrPos: Vector3): void {
+		npcLastPos = humanoidRootPart.Position;
+		const distance = helpers.getDistance(npcCurrPos, npcLastPos);
+		if (distance > 25) {
+			const behindPosition = humanoidRootPart.Position.sub(humanoidRootPart.CFrame.LookVector.mul(5));
+			logger.debug(`Moving NPC to ${behindPosition}, distance: ${distance}`);
+			helpers.pivotToPos(NPC, behindPosition);
+			canMove = false;
+		}
+	}
+
+	private handleFollowBehaviour(NPC: Model, humanoidRootPart: Part, npcCurrPos: Vector3): void {
+		const targetPlayerId = NPC.GetAttribute("TargetPlayer") as number;
+		const targetPlayer = Players.GetPlayerByUserId(targetPlayerId);
+
+		if (targetPlayer) {
+			const distance = helpers.getDistance(npcCurrPos, humanoidRootPart.Position);
+			if (distance > 10) {
+				const lookVector = humanoidRootPart.CFrame.LookVector;
+				const offset = lookVector.mul(5);
+				const targetPos = humanoidRootPart.Position.sub(offset);
+
+				helpers.moveToPosition(NPC, new Vector3(targetPos.X, humanoidRootPart.Position.Y, targetPos.Z));
+				canMove = true;
+			} else if (distance > 15) {
+				logger.warn(`Something went horribly wrong ${distance}`);
+			}
+		} else {
+			logger.error("Target player not found.");
+		}
+	}
+
+	private handleAttackBehaviour(NPC: Model, humanoidRootPart: Part, humanoid: Humanoid, npcCurrPos: Vector3): void {
+		const distance = helpers.getDistance(npcCurrPos, humanoidRootPart.Position);
+		const Animator = NPC.WaitForChild("Humanoid").WaitForChild("Animator") as Animator;
+		if (!humanoid || !Animator) {
+			logger.error(`Humanoid or Animator not found, ${humanoid}, ${Animator}`);
+			return;
+		}
+		const animTrack = Animator.LoadAnimation(anim);
+		if (distance < 5 && canPlay) {
+			canPlay = false;
+			animTrack.Play();
+			humanoid.TakeDamage(10);
+			animTrack.Stopped.Connect(() => {
+				wait(0.5);
+				canPlay = true;
+			});
+		}
+	}
+
+	public createNPC(targetPlayer: Player): Model | undefined {
 		const char = targetPlayer.Character || targetPlayer.CharacterAdded.Wait()[0];
 		if (!char) {
 			logger.error(`Character not found for player ${targetPlayer.Name}`);
@@ -145,8 +144,9 @@ export const NPCController = {
 		newNPC.SetAttribute("Behaviour", BehaviourType.Attack);
 		newNPC.SetAttribute("TargetPlayer", `${targetPlayer.UserId}`);
 		return newNPC;
-	},
-	deleteNPC: (targetPlayer: Player) => {
+	}
+
+	public deleteNPC(targetPlayer: Player): void {
 		const npc = NPCFolder.FindFirstChild(`${targetPlayer.UserId}_NPC`);
 		if (npc) {
 			npc.Destroy();
@@ -154,8 +154,9 @@ export const NPCController = {
 		} else {
 			logger.error(`NPC not found for player ${targetPlayer.Name}`);
 		}
-	},
-	changeNPCBehaviour: (targetPlayer: Player, newBehaviour: BehaviourType) => {
+	}
+
+	public changeNPCBehaviour(targetPlayer: Player, newBehaviour: BehaviourType): void {
 		const npc = NPCFolder.FindFirstChild(`${targetPlayer.UserId}_NPC`);
 		if (npc) {
 			npc.SetAttribute("Behaviour", newBehaviour);
@@ -163,12 +164,13 @@ export const NPCController = {
 		} else {
 			logger.error(`NPC not found for player ${targetPlayer.Name}`);
 		}
-	},
-	initNPC: (character: Model, Camera: Camera): Model | undefined => {
+	}
+
+	public initNPC(character: Model, Camera: Camera): Model | undefined {
 		if (!game.IsLoaded()) {
 			game.Loaded.Wait();
 		}
-		const NPC = NPCController.createNPC(Players.LocalPlayer);
+		const NPC = this.createNPC(Players.LocalPlayer);
 		if (!NPC) {
 			logger.error(
 				`Failed to initialize NPC for player ${Players.LocalPlayer.Name} ${Players.LocalPlayer.UserId}`,
@@ -176,24 +178,25 @@ export const NPCController = {
 			return;
 		}
 
-		if (RunServices[NPC.Name]) {
-			logger.debug(RunServices);
-			RunServices[NPC.Name].Disconnect();
+		if (this.RunServices[NPC.Name]) {
+			logger.debug(this.RunServices);
+			this.RunServices[NPC.Name].Disconnect();
 		}
-		RunServices[NPC.Name] = RunService.RenderStepped.Connect(() => {
+		this.RunServices[NPC.Name] = RunService.RenderStepped.Connect(() => {
 			const currentTime = tick();
 			if (currentTime - lastTime >= debounce) {
 				if (!NPC || !Camera || !character) {
 					logger.error("NPC, Camera or Character not found.");
 					return;
 				}
-				moveNPC(NPC, character, Camera);
-				// logger.debug(`Current Behaviour: ${NPC.GetAttribute("Behaviour")}`);
+				this.moveNPC(NPC, character, Camera);
 				lastTime = currentTime;
 			}
 		});
 		NPC.Parent = NPCFolder;
 		NPC.SetAttribute("init", true);
 		return NPC;
-	},
-};
+	}
+}
+
+export { NPCController };

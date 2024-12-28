@@ -2,7 +2,7 @@ import { Logger, LogLevel } from "./logger";
 
 const logger = new Logger("Lerp", LogLevel.Info)
 
-export function lerp<T extends CFrame | Vector3 | number>(start: T, target: T, alpha: number): T {
+export default function lerp<T extends CFrame | Vector3 | number>(start: T, target: T, alpha: number): T {
 	if (typeIs(start, "number") && typeIs(target, "number")) {
 		// Lerp for numbers
 		return (start + (target - start) * alpha) as T;

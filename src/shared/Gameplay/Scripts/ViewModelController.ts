@@ -25,13 +25,13 @@ export class ViewModelController {
 	private bobbing = 0;
 
 	constructor(tool: Tool) {
-        this.tool = tool;
-        this.camera = Workspace.CurrentCamera as Camera;
-        this.initialize();
-    }
+		this.tool = tool;
+		this.camera = Workspace.CurrentCamera as Camera;
+		this.initialize();
+	}
 
 	private initialize() {
-		logger.debug("Initializing ViewModelController for tool: ", this.tool.Name);
+		logger.debug("Initializing ViewModelController for tool:", this.tool.Name);
 
 		const viewModelName = this.tool.GetAttribute(Constants.VIEW_MODEL_ATTRIBUTE) as string;
 		const viewModelTemplate = ReplicatedStorage.WaitForChild("ViewModels").WaitForChild(viewModelName) as Model;
@@ -114,13 +114,19 @@ export class ViewModelController {
 
 	private enable() {
 		if (this.enabled) return;
+		if (this.viewModel) {
+			this.viewModel.Parent = Workspace;
+		}
 		this.enabled = true;
+
+		let mouseSwayCF = new CFrame();
+		let walkSwayCF = new CFrame();
 
 		RunService.BindToRenderStep(
 			Constants.VIEW_MODEL_BIND_NAME,
 			Enum.RenderPriority.Camera.Value + 1,
 			(deltaTime: number) => {
-				this.update(deltaTime); // Call update within RenderStepped
+				this.update(deltaTime);
 
 				if (this.humanoid && this.humanoid.Health <= 0 && this.camera.FindFirstChild(this.viewModel?.Name!)) {
 					this.camera.FindFirstChild(this.viewModel?.Name!)?.Destroy();
@@ -128,6 +134,7 @@ export class ViewModelController {
 
 				if (this.equipped && this.viewModel) {
 					this.viewModel.PivotTo(this.camera.CFrame);
+
 					this.viewModel.GetChildren().forEach((child) => {
 						if (child.IsA("BasePart")) {
 							child.CanCollide = false;
@@ -137,15 +144,33 @@ export class ViewModelController {
 					const mouseDelta = uis.GetMouseDelta().div(25);
 					const swayX = math.clamp(mouseDelta.X, -0.2, 0.2);
 					const swayY = math.clamp(mouseDelta.Y, -0.2, 0.2);
-					this.swayCF = this.swayCF.Lerp(new CFrame(swayX, swayY, 0), 0.3);
-					this.viewModel.PivotTo(this.camera.CFrame.mul(this.swayCF));
+
+					const targetMouseSway = new CFrame(swayX, swayY, 0);
+					mouseSwayCF = mouseSwayCF.Lerp(targetMouseSway, math.min(deltaTime * Constants.SWAY_LERP_SPEED, 1));
+
+					if (this.humanoid && this.humanoid.MoveDirection.Magnitude > 0) {
+						const moveSpeed = this.humanoid.WalkSpeed;
+						const time = tick();
+						const walkOffset = new Vector3(
+							math.sin(time * moveSpeed * Constants.WALK_SWAY_SPEED) * Constants.WALK_SWAY_AMOUNT,
+							math.sin(time * moveSpeed * Constants.WALK_SWAY_SPEED * 2) * Constants.WALK_SWAY_AMOUNT_Y,
+							0,
+						);
+						const targetWalkSway = new CFrame(walkOffset);
+						walkSwayCF = walkSwayCF.Lerp(
+							targetWalkSway,
+							math.min(deltaTime * Constants.WALK_LERP_SPEED, 1),
+						);
+					} else {
+						walkSwayCF = walkSwayCF.Lerp(new CFrame(), math.min(deltaTime * Constants.WALK_LERP_SPEED, 1)); // Reset when not walking
+					}
+					// mouseSwayCF.mul(walkSwayCF)
+					const combinedSway = mouseSwayCF.mul(walkSwayCF);
+					this.viewModel.PivotTo(this.camera.CFrame.mul(combinedSway));
 				}
 			},
 		);
 
-		if (this.viewModel) {
-			this.viewModel.Parent = Workspace;
-		}
 		this.hideToolInstances();
 	}
 
@@ -166,47 +191,23 @@ export class ViewModelController {
 
 	private destroy() {
 		this.cleanup();
-        this.viewModel?.Destroy();
+		this.viewModel?.Destroy();
 	}
 
 	private cleanup() {
-        this.swayConnection?.Disconnect();
-        this.swayConnection = undefined;
-        disconnectAndClear(this.connections);
-    }
+		this.swayConnection?.Disconnect();
+		this.swayConnection = undefined;
+		disconnectAndClear(this.connections);
+	}
 
 	private onEquipped() {
 		this.enable();
-        this.equipped = true;
-        this.setupViewModel();
-	}
-	
-	private onUnequipped() {
-		this.disable();
-        this.equipped = false;
-        this.cleanup();
+		this.equipped = true;
 	}
 
-	private setupViewModel() {
-        if (this.viewModel) {
-            this.viewModel.Parent = this.camera;
-            this.humanoid = this.tool.Parent?.FindFirstChildOfClass("Humanoid") as Humanoid;
-            if (this.humanoid) {
-                this.swayConnection = this.humanoid.GetPropertyChangedSignal("WalkSpeed").Connect(() => this.updateSway());
-            }
-        } else {
-            logger.error(`ViewModel attribute not found on tool: ${this.tool.Name}`);
-        }
-    }
-	
-	private updateSway() {
-		if (this.humanoid) {
-			const walkSpeed = this.humanoid.WalkSpeed;
-			const swayAmount = walkSpeed * 0.1; // Adjust the multiplier as needed
-			// Apply sway effect to the viewModel
-			if (this.viewModel) {
-				this.viewModel.PivotTo(this.viewModel.GetPivot().mul(CFrame.Angles(0, math.rad(swayAmount), 0)));
-			}
-		}
+	private onUnequipped() {
+		this.disable();
+		this.equipped = false;
+		this.cleanup();
 	}
 }

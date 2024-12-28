@@ -4,19 +4,19 @@ This project is a Roblox horror game built using Roblox-TS for type safety, Rojo
 
 ## Features
 
-This game will include (but is not limited to):
+This game will include (but is definetely (not) limited to):
 
-* **Dynamic Enemy Spawning:** Enemies will spawn strategically, increasing tension and difficulty.
-* **Immersive Environments:**  Detailed and atmospheric environments will enhance the horror experience.
-* **Intriguing Gameplay Mechanics:**  Unique gameplay elements will keep players engaged and on the edge of their seats.
-* **Realistic Lighting and Sound:**  High-quality lighting and sound design will create a truly terrifying atmosphere.
-* **Suspenseful Story:** A compelling narrative will unfold as the player progresses.
+* **Dynamic Enemy Spawning:** Enemies which will have the worst spawn mechanics
+* **Immersive Environments:**  I hate environment creation
+* **Intriguing Gameplay Mechanics:**  Only thing on the edge are my nerves
+* **Realistic Lighting and Sound:**  Lighting: Future
+* **Suspenseful Story:** boo 
 
-## Technologies Used
+## Packages
 
 * **Roblox-TS:**  [https://github.com/roblox-ts/roblox-ts](https://github.com/roblox-ts/roblox-ts) - Provides type safety and improved code organization.
 * **Rojo:** [https://rojo.dev/](https://rojo.dev/) - Manages the project's structure and organization.
 * **Roact:** [https://github.com/roblox-ts/roact](https://github.com/roblox-ts/roact) -  A React-like library for building UIs in Roblox.
 
 ## Future Development
-Further details on specific game mechanics and features will be added as development progresses.
+I will NOT 

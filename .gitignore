@@ -4,3 +4,4 @@
 *.tsbuildinfo
 *.project.json
 gh
+types

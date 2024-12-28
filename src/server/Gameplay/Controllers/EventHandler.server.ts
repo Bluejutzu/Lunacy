@@ -1,7 +1,7 @@
 import { Players, ReplicatedStorage } from "@rbxts/services";
 import { PlayerController } from "shared/Gameplay/Scripts/PlayerController";
 import { Logger, LogLevel } from "shared/Gameplay/Utility/logger";
-
+ 
 const Remotes = ReplicatedStorage.WaitForChild("Remotes");
 const TriggerDistortion = Remotes.WaitForChild("TriggerDistortion") as RemoteEvent;
 const TriggerFlicker = Remotes.WaitForChild("TriggerDistortion") as RemoteEvent;

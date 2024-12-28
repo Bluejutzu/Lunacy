@@ -195,17 +195,15 @@ export class ViewModelController {
 		this.swayConnection?.Disconnect();
 		this.swayConnection = undefined;
 		disconnectAndClear(this.connections);
-		this.destroy()
 	}
 
 	private onEquipped() {
-		this.enable();
 		this.equipped = true;
+		this.enable();
 	}
 
 	private onUnequipped() {
 		this.equipped = false;
 		this.disable();
-		this.cleanup();
 	}
 }

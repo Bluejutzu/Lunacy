@@ -29,7 +29,7 @@ export interface RBXScriptArray {
 	[key: string]: RBXScriptConnection;
 }
 
-class NPCController {
+export class NPCController {
 	private RunServices: RBXScriptArray = {};
 
 	private moveNPC(NPC: Model, character: Model, Camera: Camera): void {
@@ -199,4 +199,3 @@ class NPCController {
 	}
 }
 
-export { NPCController };

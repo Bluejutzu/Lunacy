@@ -6,8 +6,9 @@ const Remotes = game.GetService("ReplicatedStorage").WaitForChild("Remotes");
 const NPCInit = Remotes.WaitForChild("NPCInit") as RemoteEvent;
 
 const Players = game.GetService("Players");
-
 const player = Players.LocalPlayer;
+
+const npcController = new NPCController();
 
 const logger = new Logger("Controller", LogLevel.Debug);
 
@@ -23,7 +24,7 @@ const initizalize = () => {
 		logger.warn("Character not found in the workspace.");
 		return;
 	}
-	NPCController.initNPC(character, camera);
+	npcController.initNPC(character, camera);
 };
 
 NPCInit.OnClientEvent.Connect(() => {

@@ -1,17 +1,16 @@
-import { RunService, Players, Workspace, ReplicatedFirst, ReplicatedStorage } from "@rbxts/services";
+import { Players, UserInputService as uis } from "@rbxts/services";
 import { Logger, LogLevel } from "../../Utility/logger";
 import disconnectAndClear from "shared/Utility/disconnectAndClear";
 
 const logger = new Logger("ToolController", LogLevel.Debug);
+const player = Players.LocalPlayer;
 
 export class ToolController {
 	private tool: Tool;
-	private player = Players.LocalPlayer;
-	private character = this.player.Character || this.player.CharacterAdded.Wait()[0];
-	private handle?: Part;
 	private connections: RBXScriptConnection[] = [];
 	private weld?: WeldConstraint;
-	private bindConnection?: void;
+	private character: Model | undefined = player.Character || player.CharacterAdded.Wait()[0];
+	private animations: { [key: string]: AnimationTrack } = {};
 
 	constructor(tool: Tool) {
 		this.tool = tool;
@@ -20,38 +19,29 @@ export class ToolController {
 
 	private initialize() {
 		logger.debug("Initializing ToolController for tool:", this.tool.Name);
-		this.handle = this.tool.WaitForChild("Handle") as Part;
 
+		const animator = this.character?.WaitForChild("Humanoid")?.WaitForChild("Animator") as Animator;
+		const animationFolder = this.tool.FindFirstChild("Animations") as Folder;
+
+		for (const animation of animationFolder.GetChildren()) {
+			const animationTrack = animator.LoadAnimation(animation as Animation);
+			this.animations[animation.Name] = animationTrack;
+		}
 		this.tool.Equipped.Connect(() => this.onEquipped());
 		this.tool.Unequipped.Connect(() => this.onUnequipped());
 	}
 
 	private onEquipped() {
-		this.attachToolToParent();
+		this.animations["WhiteKey_Pickup"].Play();
+		const originalSens = uis.MouseDeltaSensitivity
+		uis.MouseDeltaSensitivity = 0
+		this.animations["WhiteKey_Pickup"].Ended.Once(() => {
+			uis.MouseDeltaSensitivity = originalSens
+		})
 	}
 
 	private onUnequipped() {
 		this.cleanup();
-	}
-
-	private attachToolToParent() {
-        // const model = ReplicatedStorage.WaitForChild("Models").WaitForChild("WhiteKey").Clone() as Model;
-		// const parentName = this.tool.GetAttribute("ParentTo") as string;
-		// const parent = this.character.FindFirstChild(parentName) as BasePart;
-		// model.Parent = parent;
-
-		// if (this.handle && parent) {
-		// 	this.weld = new Instance("WeldConstraint");
-		// 	this.weld.Part0 = this.handle;
-		// 	this.weld.Part1 = parent;
-		// 	this.weld.Parent = this.handle;
-		// }
-
-		// RunService.BindToRenderStep("AttachToolToParent", Enum.RenderPriority.Camera.Value + 1, () => {
-		// 	if (this.handle) {
-		// 		this.handle.CFrame = parent.CFrame;
-		// 	}
-		// });
 	}
 
 	private cleanup() {

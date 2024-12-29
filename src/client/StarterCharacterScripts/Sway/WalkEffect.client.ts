@@ -16,7 +16,7 @@ let int = 5;
 let int2 = 5;
 let vect3 = new Vector3();
 
-UserInputService.MouseIconEnabled = false;
+// UserInputService.MouseIconEnabled = false;
 
 bobbing = RunService.RenderStepped.Connect((deltaTime) => {
     deltaTime *= 30;

@@ -1,6 +1,6 @@
-import { Logger, LogLevel } from "./logger";
+import { Logger, LogLevel } from "../../Utility/logger";
 
-const logger = new Logger("Lerp", LogLevel.Info)
+const logger = new Logger("Lerp", LogLevel.Info);
 
 export default function lerp<T extends CFrame | Vector3 | number>(start: T, target: T, alpha: number): T {
 	if (typeIs(start, "number") && typeIs(target, "number")) {
@@ -22,6 +22,6 @@ export default function lerp<T extends CFrame | Vector3 | number>(start: T, targ
 		return new CFrame(interpolatedPos).mul(interpolatedOrientation) as T;
 	} else {
 		logger.error("lerp: Unsupported type or mismatched input types.");
-        return 0 as T
+		return 0 as T;
 	}
 }

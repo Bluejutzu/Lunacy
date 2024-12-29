@@ -1,6 +1,6 @@
 import { Workspace } from "@rbxts/services";
 import { NPCController } from "shared/Gameplay/Scripts/NPCController";
-import { Logger, LogLevel } from "shared/Gameplay/Utility/logger";
+import { Logger, LogLevel } from "shared/Utility/logger";
 
 const Remotes = game.GetService("ReplicatedStorage").WaitForChild("Remotes");
 const NPCInit = Remotes.WaitForChild("NPCInit") as RemoteEvent;

@@ -1,0 +1,16 @@
+export const CharacterChildren = [
+    "RightUpperArm",
+    "RightLowerArm",
+    "RightHand",
+    "LeftUpperArm",
+    "LeftLowerArm",
+    "LeftHand",
+    "RightUpperLeg",
+    "RightLowerLeg",
+    "RightFoot",
+    "LeftUpperLeg",
+    "LeftLowerLeg",
+    "LeftFoot",
+    "UpperTorso",
+    "LowerTorso",
+];

@@ -14,9 +14,9 @@ This game will include (but is definetely (not) limited to):
 
 ## Packages
 
-* **Roblox-TS:**  [https://github.com/roblox-ts/roblox-ts](https://github.com/roblox-ts/roblox-ts) - Provides type safety and improved code organization.
-* **Rojo:** [https://rojo.dev/](https://rojo.dev/) - Manages the project's structure and organization.
-* **Roact:** [https://github.com/roblox-ts/roact](https://github.com/roblox-ts/roact) -  A React-like library for building UIs in Roblox.
+* **Roblox-TS:**  [https://github.com/roblox-ts/roblox-ts](https://github.com/roblox-ts/roblox-ts)
+* **Rojo:** [https://rojo.dev/](https://rojo.dev/)
+* **Roact:** [https://github.com/roblox-ts/roact](https://github.com/roblox-ts/roact)
 
 ## Future Development
 I will NOT 

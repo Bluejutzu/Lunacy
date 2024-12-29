@@ -1,5 +1,5 @@
 import { Players, ReplicatedStorage } from "@rbxts/services";
-import { Logger, LogLevel } from "shared/Gameplay/Utility/logger";
+import { Logger, LogLevel } from "shared/Utility/logger";
 
 const plr = Players.LocalPlayer;
 
@@ -13,6 +13,6 @@ PlayerInit.OnClientEvent.Connect(() => {
 		logger.warn(`${plr} is not a valid player.`);
 		return;
 	}
-	plr.CameraMode = Enum.CameraMode.LockFirstPerson;
+	plr.CameraMode = Enum.CameraMode.Classic;
 	logger.info(`[CLIENT] Player ${plr.Name} initialized.`);
 });

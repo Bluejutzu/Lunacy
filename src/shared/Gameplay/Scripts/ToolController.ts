@@ -32,12 +32,7 @@ export class ToolController {
 	}
 
 	private onEquipped() {
-		this.animations["WhiteKey_Pickup"].Play();
-		const originalSens = uis.MouseDeltaSensitivity
-		uis.MouseDeltaSensitivity = 0
-		this.animations["WhiteKey_Pickup"].Ended.Once(() => {
-			uis.MouseDeltaSensitivity = originalSens
-		})
+		this.animations[`${this.tool.Name}_Pickup`].Play();
 	}
 
 	private onUnequipped() {

@@ -26,20 +26,29 @@ export enum BehaviourType {
 }
 
 export interface RBXScriptArray {
-	[key: string]: RBXScriptConnection;
+	[key: string]: void;
 }
 
 export class NPCController {
 	private RunServices: RBXScriptArray = {};
+	private npc: Model | undefined;
+	private character: Model;
+	private camera: Camera;
+	private enabled = false;
 
-	private moveNPC(NPC: Model, character: Model, Camera: Camera): void {
+	constructor(character: Model, camera: Camera) {
+		this.character = character;
+		this.camera = camera;
+	}
+
+	private moveNPC(NPC: Model): void {
 		const npcCurrPos = NPC.PrimaryPart?.Position!;
-		const isInScreenBounds = helpers.isInScreenBounds(Camera, npcCurrPos);
+		const isInScreenBounds = helpers.isInScreenBounds(this.camera, npcCurrPos);
 
 		if (!isInScreenBounds) {
 			canMove = true;
-			const humanoidRootPart = character.WaitForChild("HumanoidRootPart") as Part;
-			const humanoid = character.WaitForChild("Humanoid") as Humanoid;
+			const humanoidRootPart = this.character.WaitForChild("HumanoidRootPart") as Part;
+			const humanoid = this.character.WaitForChild("Humanoid") as Humanoid;
 
 			if (humanoidRootPart) {
 				this.handleNPCBehaviour(NPC, humanoidRootPart, humanoid);
@@ -149,7 +158,7 @@ export class NPCController {
 	public deleteNPC(targetPlayer: Player): void {
 		const npc = NPCFolder.FindFirstChild(`${targetPlayer.UserId}_NPC`);
 		if (npc) {
-			npc.Destroy();
+			this.destroy()
 			logger.info(`NPC deleted for player ${targetPlayer.Name}`);
 		} else {
 			logger.error(`NPC not found for player ${targetPlayer.Name}`);
@@ -166,7 +175,7 @@ export class NPCController {
 		}
 	}
 
-	public initNPC(character: Model, Camera: Camera): Model | undefined {
+	public initNPC(): Model | undefined {
 		if (!game.IsLoaded()) {
 			game.Loaded.Wait();
 		}
@@ -178,23 +187,46 @@ export class NPCController {
 			return;
 		}
 
-		if (this.RunServices[NPC.Name]) {
-			logger.debug(this.RunServices);
-			this.RunServices[NPC.Name].Disconnect();
-		}
-		this.RunServices[NPC.Name] = RunService.RenderStepped.Connect(() => {
-			const currentTime = tick();
-			if (currentTime - lastTime >= debounce) {
-				if (!NPC || !Camera || !character) {
-					logger.error("NPC, Camera or Character not found.");
-					return;
-				}
-				this.moveNPC(NPC, character, Camera);
-				lastTime = currentTime;
-			}
-		});
+		this.npc = NPC;
+		this.enable();
+
 		NPC.Parent = NPCFolder;
 		NPC.SetAttribute("init", true);
 		return NPC;
+	}
+
+	private enable() {
+		if (this.enabled) return;
+		this.enabled = true;
+		if (this.npc) {
+			RunService.BindToRenderStep(`Bind_${this.npc.Name}_RunService`, 2, () => {
+				const currentTime = tick();
+				if (currentTime - lastTime >= debounce) {
+					if (!this.npc || !this.camera || !this.character) {
+						logger.error("NPC, Camera or Character not found.");
+						return;
+					}
+					this.moveNPC(this.npc);
+					lastTime = currentTime;
+				}
+			});
+		}
+	}
+
+	private disable() {
+		if (!this.enabled) return;
+		this.enabled = false;
+	}
+
+	public destroy() {
+		this.cleanup();
+		if (this.npc) {
+			this.npc.Destroy();
+			this.npc = undefined;
+		}
+	}
+
+	private cleanup() {
+		this.disable();
 	}
 }

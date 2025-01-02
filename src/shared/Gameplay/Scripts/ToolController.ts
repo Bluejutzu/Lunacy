@@ -1,16 +1,14 @@
 import { Players, UserInputService as uis } from "@rbxts/services";
 import { Logger, LogLevel } from "../../Utility/logger";
-import disconnectAndClear from "shared/Utility/disconnectAndClear";
 
-const logger = new Logger("ToolController", LogLevel.Debug);
+const logger = new Logger("ToolController", LogLevel.Info);
 const player = Players.LocalPlayer;
 
 export class ToolController {
 	private tool: Tool;
-	private connections: RBXScriptConnection[] = [];
-	private weld?: WeldConstraint;
 	private character: Model | undefined = player.Character || player.CharacterAdded.Wait()[0];
 	private animations: { [key: string]: AnimationTrack } = {};
+	private currPlaying: AnimationTrack | undefined;
 
 	constructor(tool: Tool) {
 		this.tool = tool;
@@ -28,27 +26,28 @@ export class ToolController {
 			this.animations[animation.Name] = animationTrack;
 		}
 		this.tool.Equipped.Connect(() => this.onEquipped());
-		this.tool.Unequipped.Connect(() => this.onUnequipped());
 	}
 
 	private onEquipped() {
-		this.animations[`${this.tool.Name}_Pickup`].Play();
+		this.playAnim(`${this.tool.Name}_Pickup`);
 	}
 
-	private onUnequipped() {
-		this.cleanup();
-	}
+	public playAnim(name: string) {
+		if (this.animations[name]) {
+			this.animations[name].Play();
 
-	private cleanup() {
-		disconnectAndClear(this.connections);
-		if (this.weld) {
-			this.weld.Destroy();
-			this.weld = undefined;
+			this.currPlaying = this.animations[name];
+			this.animations[name].Ended.Connect(() => (this.currPlaying = undefined));
+		} else {
+			logger.warn(`Animation not found: ${name}`);
 		}
 	}
 
+	public stopAnim() {
+		this.currPlaying?.Stop();
+	}
+
 	public destroy() {
-		this.cleanup();
 		this.tool.Destroy();
 	}
 }

@@ -1,6 +1,5 @@
 import { RunService, UserInputService, Players, Workspace } from "@rbxts/services";
 
-const localPlayer = Players.LocalPlayer;
 const camera = Workspace.CurrentCamera!;
 let turn = 0;
 

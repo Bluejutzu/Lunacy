@@ -2,50 +2,48 @@ import { Players, RunService, UserInputService, Workspace } from "@rbxts/service
 import lerp from "shared/Gameplay/Utility/lerp";
 
 const player = Players.LocalPlayer;
-const mouse = player.GetMouse();
 const camera = Workspace.CurrentCamera!;
 const humanoid = player.Character?.WaitForChild("Humanoid") as Humanoid;
-let bobbing: RBXScriptConnection | undefined;
-let func1 = 0;
-let func2 = 0;
-let func3 = 0;
-let func4 = 0;
-let val = 0;
-let val2 = 0;
-let int = 5;
-let int2 = 5;
-let vect3 = new Vector3();
+let bobbingConnection: RBXScriptConnection | undefined;
+let swayX = 0;
+let swayY = 0;
+let mouseSwayX = 0;
+let mouseSwayY = 0;
+let velocitySwayX = 0;
+let velocitySwayY = 0;
+let walkSpeedFactor = 5;
+let walkSpeedFactor2 = 5;
+let lookVector = new Vector3();
 
-// UserInputService.MouseIconEnabled = false;
-
-bobbing = RunService.RenderStepped.Connect((deltaTime) => {
+bobbingConnection = RunService.RenderStepped.Connect((deltaTime) => {
     deltaTime *= 30;
+
     if (humanoid.Health <= 0) {
-        bobbing?.Disconnect();
+        bobbingConnection?.Disconnect();
         return;
     }
 
     const rootPart = humanoid.RootPart;
-    const rootMagnitude = rootPart ? new Vector3(rootPart.AssemblyLinearVelocity.X, 0, rootPart.AssemblyLinearVelocity.Z).Magnitude : 0;
-    const calcRootMagnitude = math.min(rootMagnitude, 25);
+    const rootVelocity = rootPart ? new Vector3(rootPart.AssemblyLinearVelocity.X, 0, rootPart.AssemblyLinearVelocity.Z).Magnitude : 0;
+    const clampedRootVelocity = math.min(rootVelocity, 25);
 
     if (deltaTime > 1.5) {
-        func1 = 0;
-        func2 = 0;
+        swayX = 0;
+        swayY = 0;
     } else {
-        func1 = lerp(func1, math.cos(tick() * 0.5 * math.random(7.5, 10)) * (math.random(6, 10) / 100) * deltaTime, 0.05 * deltaTime);
-        func2 = lerp(func2, math.cos(tick() * 0.5 * math.random(5, 9)) * (math.random(1, 5) / 100) * deltaTime, 0.05 * deltaTime);
+        swayX = lerp(swayX, math.cos(tick() * 0.5 * math.random(7.5, 10)) * (math.random(6, 10) / 100) * deltaTime, 0.05 * deltaTime);
+        swayY = lerp(swayY, math.cos(tick() * 0.5 * math.random(5, 9)) * (math.random(1, 5) / 100) * deltaTime, 0.05 * deltaTime);
     }
 
     camera.CFrame = camera.CFrame
-        .mul(CFrame.fromEulerAnglesXYZ(0, 0, math.rad(func3)))
-        .mul(CFrame.fromEulerAnglesXYZ(math.rad(func4 * deltaTime), math.rad(val * deltaTime), val2))
-        .mul(CFrame.Angles(0, 0, math.rad(func4 * deltaTime * (calcRootMagnitude / 5))))
-        .mul(CFrame.fromEulerAnglesXYZ(math.rad(func1), math.rad(func2), math.rad(func2 * 10)));
+        .mul(CFrame.fromEulerAnglesXYZ(0, 0, math.rad(mouseSwayX)))
+        .mul(CFrame.fromEulerAnglesXYZ(math.rad(mouseSwayY * deltaTime), math.rad(velocitySwayX * deltaTime), velocitySwayY))
+        .mul(CFrame.Angles(0, 0, math.rad(mouseSwayY * deltaTime * (clampedRootVelocity / 5))))
+        .mul(CFrame.fromEulerAnglesXYZ(math.rad(swayX), math.rad(swayY), math.rad(swayY * 10)));
 
-    val2 = math.clamp(
+    velocitySwayY = math.clamp(
         lerp(
-            val2,
+            velocitySwayY,
             rootPart ? -camera.CFrame.VectorToObjectSpace(rootPart.AssemblyLinearVelocity.div(math.max(humanoid.WalkSpeed, 0.01))).X * 0.04 : 0,
             0.1 * deltaTime,
         ),
@@ -53,26 +51,26 @@ bobbing = RunService.RenderStepped.Connect((deltaTime) => {
         0.1,
     );
 
-    func3 = lerp(func3, math.clamp(UserInputService.GetMouseDelta().X, -2.5, 2.5), 0.25 * deltaTime);
-    func4 = lerp(func4, math.sin(tick() * int) / 5 * math.min(1, int2 / 10), 0.25 * deltaTime);
+    mouseSwayX = lerp(mouseSwayX, math.clamp(UserInputService.GetMouseDelta().X, -2.5, 2.5), 0.25 * deltaTime);
+    mouseSwayY = lerp(mouseSwayY, math.sin(tick() * walkSpeedFactor) / 5 * math.min(1, walkSpeedFactor2 / 10), 0.25 * deltaTime);
 
-    if (rootMagnitude > 1) {
-        val = lerp(val, math.cos(tick() * 0.5 * math.floor(int)) * (int / 200), 0.25 * deltaTime);
+    if (rootVelocity > 1) {
+        velocitySwayX = lerp(velocitySwayX, math.cos(tick() * 0.5 * math.floor(walkSpeedFactor)) * (walkSpeedFactor / 200), 0.25 * deltaTime);
     } else {
-        val = lerp(val, 0, 0.05 * deltaTime);
+        velocitySwayX = lerp(velocitySwayX, 0, 0.05 * deltaTime);
     }
 
-    if (rootMagnitude > 6) {
-        int = 10;
-        int2 = 9;
-    } else if (rootMagnitude > 0.1) {
-        int = 6;
-        int2 = 7;
+    if (rootVelocity > 6) {
+        walkSpeedFactor = 10;
+        walkSpeedFactor2 = 9;
+    } else if (rootVelocity > 0.1) {
+        walkSpeedFactor = 6;
+        walkSpeedFactor2 = 7;
     } else {
-        int2 = 0;
+        walkSpeedFactor2 = 0;
     }
 
     player.CameraMaxZoomDistance = 128;
     player.CameraMinZoomDistance = 0.5;
-    vect3 = vect3.Lerp(camera.CFrame.LookVector, 0.125 * deltaTime);
+    lookVector = lookVector.Lerp(camera.CFrame.LookVector, 0.125 * deltaTime);
 });

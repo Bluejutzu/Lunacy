@@ -7,7 +7,7 @@ const TriggerFlicker = ReplicatedStorage.Remotes.WaitForChild("TriggerFlicker") 
 
 const model = Workspace.WaitForChild("HumanoidModel") as Model;
 const flickerController = new FlickerController();
-const baseFlickerInterval = 0.01
+const baseFlickerInterval = 0.01;
 
 TriggerFlicker.OnClientEvent.Connect((position: Vector3, inScreenBounds: boolean) => {
 	if (model) {

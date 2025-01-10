@@ -1,10 +1,7 @@
 import { RunService } from "@rbxts/services";
 
-/**
- * Folder structure:
- * Script > TS > Character
- */
 
+// Have to call parent twice cause: Script > TS > Character
 const character = script.Parent?.Parent as Model;
 const humanoid = character.WaitForChild("Humanoid") as Humanoid;
 
